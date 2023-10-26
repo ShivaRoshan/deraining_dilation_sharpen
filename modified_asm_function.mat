@@ -1,0 +1,43 @@
+% function Haze = Atmospheric_Scattering(HazeImg,A, T)
+% delta = 1;
+% T = max(abs(T), 0.0001).^delta;
+% HazeImg = double(HazeImg);
+% Haze = double(HazeImg);
+% if length(A) == 1
+%     A = A * ones(3, 1);
+% end
+% for c=1:3
+%     Haze(:,:,c) = HazeImg(:, :, c) .* T + (A(c).*(abs(ones(size(T))-T)));   
+% end 
+% end
+% 
+function Haze = Atmospheric_Scattering(HazeImg, A,T)
+    delta = 1;
+    T = max(abs(T), 0.0001).^delta;
+    HazeImg = double(HazeImg);
+    Haze = double(HazeImg);
+    
+    if length(A) == 1
+        A = A * ones(3, 1);
+    end
+    
+    [rows, cols, ~] = size(HazeImg);
+    center_x = cols / 2;
+    center_y = rows / 2;
+
+    for y = 1:rows
+        for x = 1:cols
+            % Calculate the distance from the center
+            distance = sqrt((x - center_x)^2 + (y - center_y)^2);
+
+            % Calculate the logarithmic intensity based on the distance
+            intensity = log(1 + distance);
+
+            for c = 1:3
+                % Apply the atmosphere color and intensity to the output image
+                Haze(y, x, c) = HazeImg(y, x, c) * intensity + (A(c) * (1 - intensity));
+            end
+        end
+    end
+end
+
